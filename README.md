@@ -1,4 +1,4 @@
-# ✦ TaskFlow Gerenciador de Tarefass
+# ✦ TaskFlow Gerenciador de Tarefas
 
 O **TaskFlow** é um gerenciador de tarefas desenvolvido com HTML, CSS e JavaScript, criado como parte do **Desafio 3 da Imersão Engenharia de Software: Dev na Era da IA, da Alura**.
 
