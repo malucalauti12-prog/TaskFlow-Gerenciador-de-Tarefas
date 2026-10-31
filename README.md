@@ -136,7 +136,7 @@ O projeto conta com testes automatizados utilizando jsdom para verificar funcion
 
 ## 📚 Sobre o projeto
 
-O TaskFlow 2.0 foi desenvolvido como parte de uma experiência prática de aprendizado na **Imersão Engenharia de Software: Dev na Era da IA, da Alura**.
+O TaskFlow foi desenvolvido como parte de uma experiência prática de aprendizado na **Imersão Engenharia de Software: Dev na Era da IA, da Alura**.
 
 O objetivo foi aplicar conceitos de desenvolvimento web, organização de código, manipulação do DOM, armazenamento local e criação de funcionalidades voltadas à experiência do usuário.
 
