@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TaskFlow — Gerenciador de tarefas moderno, minimalista e intuitivo construído com JavaScript puro e persistência em LocalStorage.">
+  <title>TaskFlow — Gerenciador de Tarefas</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><path d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/></svg>">
+</head>
+<body>
+  <a class="skip-link" href="#main">Ir para o conteúdo principal</a>
+
+  <div class="app-shell">
+    <!-- Menu lateral -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon-wrapper" aria-hidden="true">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">TaskFlow</h1>
+          <p class="brand-subtitle">Organize sua rotina com clareza</p>
+        </div>
+      </div>
+
+      <nav class="side-nav" aria-label="Filtrar tarefas por status">
+        <button type="button" class="nav-item active" data-filter="all" aria-pressed="true">
+          <span>Todas</span><span class="filter-count" id="badgeAll">0</span>
+        </button>
+        <button type="button" class="nav-item" data-filter="pending" aria-pressed="false">
+          <span>Pendentes</span><span class="filter-count" id="badgePending">0</span>
+        </button>
+        <button type="button" class="nav-item" data-filter="completed" aria-pressed="false">
+          <span>Concluídas</span><span class="filter-count" id="badgeCompleted">0</span>
+        </button>
+      </nav>
+
+      <button type="button" id="paletteBtn" class="btn-theme palette-btn" aria-haspopup="dialog">
+        <span>Comandos</span><kbd class="kbd">Ctrl K</kbd>
+      </button>
+
+      <button type="button" id="themeToggle" class="btn-theme" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <span class="btn-label">Modo escuro</span>
+      </button>
+    </aside>
+
+    <div class="content">
+      <!-- Cabeçalho com saudação e data -->
+      <header class="page-header">
+        <div class="content-inner">
+          <div>
+            <h2 class="greeting" id="greeting">Olá!</h2>
+            <p class="page-subtitle">Veja como está o seu dia e o que ainda falta fazer.</p>
+          </div>
+          <p class="date-badge"><time id="currentDateDisplay" aria-label="Data atual">--</time></p>
+        </div>
+      </header>
+
+      <main id="main" class="app-main">
+        <div class="content-inner">
+
+          <!-- Dashboard -->
+          <section class="stats-section" aria-label="Painel de indicadores das tarefas">
+            <div class="stats-grid">
+              <div class="stat-card" data-stat="total">
+                <div class="stat-info">
+                  <span class="stat-label">Total</span>
+                  <span class="stat-value" id="totalTasksCount">0</span>
+                </div>
+              </div>
+
+              <div class="stat-card" data-stat="pending">
+                <div class="stat-info">
+                  <span class="stat-label">Pendentes</span>
+                  <span class="stat-value" id="pendingTasksCount">0</span>
+                </div>
+              </div>
+
+              <div class="stat-card" data-stat="completed">
+                <div class="stat-info">
+                  <span class="stat-label">Concluídas</span>
+                  <span class="stat-value" id="completedTasksCount">0</span>
+                </div>
+              </div>
+
+              <div class="stat-card" data-stat="percent">
+                <div class="stat-info">
+                  <span class="stat-label">Conclusão</span>
+                  <span class="stat-value" id="percentCount">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="progress-panel">
+              <div class="progress-head">
+                <span id="progressLabel">Progresso geral</span>
+                <span id="progressText">0%</span>
+              </div>
+              <div class="progress" role="progressbar" aria-labelledby="progressLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Formulário (criar e editar) -->
+          <section class="task-form-section" aria-labelledby="formTitle">
+            <form id="taskForm" class="task-form" novalidate>
+              <h2 class="section-title" id="formTitle">Nova tarefa</h2>
+              <div class="form-grid">
+                <div class="field field-title">
+                  <label for="taskInput">Título</label>
+                  <input type="text" id="taskInput" name="taskDescription" placeholder="O que você precisa fazer hoje?" maxlength="140" autocomplete="off" aria-describedby="quickHint formFeedback" required>
+                  <p class="field-hint" id="quickHint">Dica: use <code>#categoria</code>, <code>!alta</code> e datas como <code>amanhã</code>, <code>sexta</code> ou <code>15/11</code> no título.</p>
+                </div>
+                <div class="field">
+                  <label for="categoryInput">Categoria</label>
+                  <input type="text" id="categoryInput" list="categoryList" placeholder="Geral" maxlength="24" autocomplete="off">
+                  <datalist id="categoryList"></datalist>
+                </div>
+                <div class="field">
+                  <label for="priorityInput">Prioridade</label>
+                  <select id="priorityInput">
+                    <option value="low">Baixa</option>
+                    <option value="medium" selected>Média</option>
+                    <option value="high">Alta</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="dueInput">Prazo (opcional)</label>
+                  <input type="date" id="dueInput">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" id="addTaskBtn" class="btn btn-primary"><span id="submitLabel">Adicionar</span></button>
+                <button type="button" id="cancelEditBtn" class="btn btn-ghost" hidden>Cancelar edição</button>
+              </div>
+              <div id="formFeedback" class="form-feedback" role="alert"></div>
+            </form>
+          </section>
+
+          <!-- Pesquisa, filtros e ordenação -->
+          <section class="task-controls-section" aria-labelledby="listTitle">
+            <div class="controls-bar">
+              <h2 class="section-title" id="listTitle">Suas Tarefas</h2>
+              <div class="toolbar">
+                <div class="field field-search">
+                  <label for="searchInput">Pesquisar</label>
+                  <input type="search" id="searchInput" placeholder="Buscar pelo título..." autocomplete="off">
+                </div>
+                <div class="field">
+                  <label for="priorityFilter">Prioridade</label>
+                  <select id="priorityFilter">
+                    <option value="all">Todas</option>
+                    <option value="high">Alta</option>
+                    <option value="medium">Média</option>
+                    <option value="low">Baixa</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="categoryFilter">Categoria</label>
+                  <select id="categoryFilter"></select>
+                </div>
+                <div class="field">
+                  <label for="sortSelect">Ordenar por</label>
+                  <select id="sortSelect">
+                    <option value="created">Mais recentes</option>
+                    <option value="due">Prazo</option>
+                    <option value="priority">Prioridade</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Lista e estado vazio -->
+          <section class="task-list-section" aria-label="Lista de atividades cadastradas">
+            <ul id="taskList" class="task-list"></ul>
+
+            <div id="emptyState" class="empty-state" hidden>
+              <div class="empty-state-illustration" aria-hidden="true">
+                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="12" y="8" width="40" height="48" rx="8"></rect>
+                  <line x1="22" y1="20" x2="42" y2="20"></line>
+                  <line x1="22" y1="30" x2="36" y2="30"></line>
+                  <line x1="22" y1="40" x2="30" y2="40"></line>
+                  <path d="M42 40l4 4 8-8"></path>
+                </svg>
+              </div>
+              <h3 class="empty-state-title" id="emptyStateTitle">Nenhuma tarefa encontrada</h3>
+              <p class="empty-state-desc" id="emptyStateDesc">Adicione uma nova atividade acima para começar!</p>
+              <button type="button" id="clearFiltersBtn" class="btn btn-ghost" hidden>Limpar pesquisa e filtros</button>
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <div class="content-inner">
+          <p><strong>TaskFlow</strong> &bull; Projeto de Aprendizado &bull; HTML5, CSS3 e JavaScript ES6+</p>
+          <p class="footer-hint">Seus dados são salvos automaticamente no navegador via <code>LocalStorage</code>.</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Paleta de comandos (Ctrl+K) -->
+  <dialog id="commandPalette" class="palette" aria-label="Paleta de comandos">
+    <label for="paletteInput" class="sr-only">Digite um comando ou busque uma tarefa</label>
+    <input id="paletteInput" class="palette-input" type="text" role="combobox" aria-expanded="true" aria-controls="paletteList" aria-autocomplete="list" placeholder="Digite um comando ou busque uma tarefa..." autocomplete="off">
+    <ul id="paletteList" class="palette-list" role="listbox" aria-label="Comandos"></ul>
+    <p class="palette-hint">↑ ↓ navegar &bull; Enter executar &bull; Esc fechar</p>
+  </dialog>
+
+  <!-- Avisos de feedback (lidos por leitores de tela) -->
+  <div id="toastRegion" class="toast-region" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
