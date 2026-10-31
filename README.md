@@ -61,6 +61,41 @@ python -m http.server 3000
 
 Acesse `http://localhost:3000`.
 
+## 🏗️ Arquitetura da Solução
+
+O TaskFlow utiliza uma arquitetura frontend modular, construída com tecnologias nativas da web. A aplicação separa a estrutura da interface, a apresentação visual e a lógica de negócio em arquivos independentes.
+
+### Architecture Overview
+
+```text
+┌──────────────────────────────────────┐
+│              User Interface          │
+│         HTML5 + CSS3                 │
+│  Dashboard, Forms, Filters, Dialogs  │
+└──────────────────┬───────────────────┘
+                   │ User interactions
+                   ▼
+┌──────────────────────────────────────┐
+│           Application Logic          │
+│             JavaScript ES6+          │
+│                                      │
+│  • State Management                  │
+│  • Task Operations                   │
+│  • Search, Filters & Sorting         │
+│  • Command Palette                   │
+│  • Input Validation                  │
+└──────────────────┬───────────────────┘
+                   │
+          ┌────────┴─────────┐
+          ▼                  ▼
+┌──────────────────┐  ┌──────────────────┐
+│   LocalStorage   │  │   UI Rendering   │
+│                  │  │                  │
+│ Task Persistence │  │ DOM Updates      │
+│ Theme Preference │  │ Progress & Toasts│
+└──────────────────┘  └──────────────────┘
+```
+
 ## 🧪 Testes
 
 O projeto conta com testes automatizados utilizando jsdom, abrangendo funcionalidades como gerenciamento de tarefas, filtros, pesquisa, entrada rápida, persistência de dados, temas e paleta de comandos.
